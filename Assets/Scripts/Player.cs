@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Mirror;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
     /* 
         All player subclasses 
@@ -175,26 +176,39 @@ public class Player : MonoBehaviour
         [System.Serializable]
     /* 
         /PlayerUI\
-        Variable     | Type   | Description
-        -------------+--------+--------------
-        healthSlider | Slider | heath's slider 
-        slideColor   | Color  | slider's color 
+        Variable       | Type    | Description
+        ---------------+---------+------------------
+        healthSlider   | Slider  | heath's slider 
+        slideColor     | Color   | slider's color 
+        inventoryPanel | GO      | inventory gameobject
+        activationKey  | KeyCode | key that de/activates inventory
     */
     public class PlayerUI{
         [SerializeField] private Slider healthSlider;
         private Color sliderColor;
+        [SerializeField] private GameObject inventoryPanel;
+        private KeyCode activationKey;
+        private bool invActivated;
         /* 
             /Constructor\
             Variables    | Type   | Description
             health       | Health | contains all info about player health
             healthSlider | Slider | the slider to show in UI
+            invActivated | bool   | checks if inventory is activated
         */
-        public PlayerUI(Health health, Slider healthSlider){
+        public PlayerUI(Health health, Slider healthSlider, GameObject inventoryPanel){
+            // Health UI
             sliderColor = new Color(0f, 255f, 0f);
             this.healthSlider = healthSlider;
             healthSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color = sliderColor;
             healthSlider.maxValue = health.GetMaxHealth();
             healthSlider.value = health.GetMaxHealth();
+
+            // Inventory UI
+            activationKey = KeyCode.I;
+            this.inventoryPanel = inventoryPanel;
+            invActivated = false;
+            this.inventoryPanel.SetActive(false);
         }
         public void SetHealthSlider(Health health){
             healthSlider.maxValue = health.GetMaxHealth();
@@ -209,6 +223,17 @@ public class Player : MonoBehaviour
                 sliderColor = Color.red;
             }
             healthSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color = sliderColor;
+        }
+
+        public KeyCode GetInventoryActivationKey(){ return activationKey; }
+        public bool GetInvActivated(){ return invActivated; }
+        public void ActivateInventory(){ 
+            inventoryPanel.SetActive(true);
+            invActivated = true;
+        }
+        public void DeActivateInventory(){ 
+            invActivated = false;
+            inventoryPanel.SetActive(false); 
         }
     }
 
@@ -315,13 +340,14 @@ public class Player : MonoBehaviour
     private LevelInfo levelInfo;
     private Movement movement;
     [SerializeField] private Slider healthSlider;
+    [SerializeField] private GameObject invPanel;
     private PlayerUI playerUI;
     private string cat = "Archer";
     [SerializeField] private GameObject itemPrefab; 
     [SerializeField] private Transform itemsLeftParent, itemsRightParent;
     [SerializeField] private Item currentEquippedItem;
     [SerializeField] private GameObject currentItemGameObj;
-    [SerializeField] private GameController gameController;
+    [SerializeField] private Transform cam;
 
     /* Getters */
     public Category GetCategory(){ return category; }
@@ -332,8 +358,9 @@ public class Player : MonoBehaviour
     public LevelInfo GetLevelInfo(){ return levelInfo; }
     public Movement GetMovement(){ return movement; }
     
-    void Awake()
+    void Start()
     {
+        if(!isLocalPlayer){ return ; }
         if(cat.Equals("Archer")){ category = new Archer(); }
         if(cat.Equals("Assassin")){ category = new Assassin(); }
         if(cat.Equals("Nomad")){ category = new Nomad(); }
@@ -349,15 +376,18 @@ public class Player : MonoBehaviour
         strength = new Strength(20*category.GetEnergy());
         speed = new Speed(2.5f);
 
+        cam = transform.Find("/Main Camera");
 
         movement = new Movement();
         speed.SetSpeedValue(movement.isRunning);
 
-        playerUI = new PlayerUI(health, healthSlider);
+        playerUI = new PlayerUI(health, healthSlider, invPanel);
         
     }
     void FixedUpdate(){
+        if(!isLocalPlayer){ return ; }
         movement.Move(speed, transform);
+        cam.position = new Vector3(transform.position.x, transform.position.y, -10);
         playerUI.SetHealthSlider(health);
         if(Input.GetKeyDown(KeyCode.H)){ health.HealthManager(-20); }
         /* Debug */
@@ -369,8 +399,14 @@ public class Player : MonoBehaviour
     }
 
     private void Update() {
-        if(Input.GetKeyDown(KeyCode.I)){
+        if(!isLocalPlayer){ return ; }
+        
+        if(Input.GetKeyDown(KeyCode.E)){
             EquipItem(itemPrefab);
+        }
+        if(Input.GetKeyDown(playerUI.GetInventoryActivationKey())){
+            if(!playerUI.GetInvActivated()){ playerUI.ActivateInventory(); }
+            else{ playerUI.DeActivateInventory(); }
         }
         if(currentEquippedItem == null){ return ;}
         currentEquippedItem.FlipItem(spriteRenderer.flipX);
@@ -385,6 +421,7 @@ public class Player : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
+        if(!isLocalPlayer){ return ; }
         Debug.Log(other.gameObject.name + " : " + gameObject.name + " : " + Time.time);
         if(other.CompareTag("Ammo")){
             Ammo ammo = other.GetComponent<Ammo>();

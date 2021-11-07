@@ -1,23 +1,28 @@
 using UnityEngine;
+using System.Collections.Generic;
+
 
 public class GameController : MonoBehaviour
 {
     [SerializeField] private Transform spwanPoint;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Camera playerCamera, dungeonCamera;
-    private GameObject player;
-    private bool hasPlayer;
+    private List<GameObject> players;
+    private int numberOfPlayers, maxNumOfPlayers = 2;
+    private bool hasPlayers;
     void Start(){
-        hasPlayer = false;
+        hasPlayers = false;
         dungeonCamera.enabled = true;
+        numberOfPlayers = 0;
     }
     void FixedUpdate(){
+        
         if(playerPrefab == null || spwanPoint == null){ return ;}
-        if(Input.GetKeyDown(KeyCode.Space) && !hasPlayer){
-            player = Instantiate(playerPrefab, spwanPoint.position, spwanPoint.rotation);
-            hasPlayer = true;
-            playerCamera = player.GetComponentInChildren<Camera>();
-            SwitchToPlayerCamera();
+        hasPlayers = numberOfPlayers >= maxNumOfPlayers;
+        if(Input.GetKeyDown(KeyCode.Space) && !hasPlayers){
+            players[numberOfPlayers] = Instantiate(playerPrefab, spwanPoint.position, spwanPoint.rotation);
+            numberOfPlayers += 1;
+            playerCamera = players[numberOfPlayers].GetComponentInChildren<Camera>();
         }
     }
 
@@ -30,6 +35,5 @@ public class GameController : MonoBehaviour
         dungeonCamera.gameObject.SetActive(true);
     }
 
-    public void SetHasPlayer(){ hasPlayer = false; }
 
 }
