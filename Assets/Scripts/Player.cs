@@ -166,7 +166,7 @@ public class Player : NetworkBehaviour
             if (direction.normalized.x > 0){ leftOrientation = 1; }
             else if (direction.normalized.x < 0){ leftOrientation = -1; }
             upOrientation = (int) direction.normalized.y;
-            spriteRenderer.flipX = leftOrientation > 0;
+            // Here
             
         }
         public bool GetIsRunning(){ return isRunning; }
@@ -333,7 +333,7 @@ public class Player : NetworkBehaviour
     */
     // Player's class (Archer, Assassin, ...)
     private Category category;
-    [SerializeField] static private SpriteRenderer spriteRenderer;
+    // [SerializeField] static private SpriteRenderer spriteRenderer;
     private Health health;
     private Strength strength;
     private Speed speed;
@@ -351,7 +351,6 @@ public class Player : NetworkBehaviour
 
     /* Getters */
     public Category GetCategory(){ return category; }
-    public SpriteRenderer GetSpriteRenderer(){ return spriteRenderer; }
     public Health GetHealth(){ return health; }
     public Strength GetStrength(){ return strength; }
     public Speed GetSpeed(){ return speed; }
@@ -370,7 +369,7 @@ public class Player : NetworkBehaviour
 
         healthSlider = GetComponentInChildren<Slider>();
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        // spriteRenderer = GetComponent<SpriteRenderer>();
 
         health = new Health(100*category.GetConstitution());
         strength = new Strength(20*category.GetEnergy());
@@ -384,9 +383,10 @@ public class Player : NetworkBehaviour
         playerUI = new PlayerUI(health, healthSlider, invPanel);
         
     }
-    void FixedUpdate(){
+    void FixedUpdate(){     
         if(!isLocalPlayer){ return ; }
         movement.Move(speed, transform);
+        // spriteRenderer.flipX = movement.GetLeftOrientation() > 0;
         cam.position = new Vector3(transform.position.x, transform.position.y, -10);
         playerUI.SetHealthSlider(health);
         if(Input.GetKeyDown(KeyCode.H)){ health.HealthManager(-20); }
@@ -409,8 +409,8 @@ public class Player : NetworkBehaviour
             else{ playerUI.DeActivateInventory(); }
         }
         if(currentEquippedItem == null){ return ;}
-        currentEquippedItem.FlipItem(spriteRenderer.flipX);
-        if(spriteRenderer.flipX){
+        // currentEquippedItem.FlipItem(spriteRenderer.flipX);
+        if(GetComponent<SpriteRenderer>().flipX){ // hhheh
             currentEquippedItem.transform.SetParent(itemsRightParent);
             currentEquippedItem.transform.localPosition = Vector3.zero;
             return ;

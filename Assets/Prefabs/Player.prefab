@@ -1461,17 +1461,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1551086451}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1795094542}
   m_Father: {fileID: 2129717459}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 6.7838, y: 1.2027}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: -5, y: 1.2027}
   m_SizeDelta: {x: 39.8929, y: 80.776}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1551086454
@@ -1771,7 +1771,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.6013}
+  m_AnchoredPosition: {x: 0, y: 0.6012993}
   m_SizeDelta: {x: 67.3921, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1795094544
@@ -2414,6 +2414,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4157381422819357104}
   - component: {fileID: 4157381422819357106}
+  - component: {fileID: -4686051854149982470}
   - component: {fileID: 4157381422819357107}
   - component: {fileID: 884300004}
   - component: {fileID: 1476693812}
@@ -2469,6 +2470,23 @@ MonoBehaviour:
   itemsRightParent: {fileID: 4321040114477217155}
   currentEquippedItem: {fileID: 0}
   currentItemGameObj: {fileID: 0}
+  cam: {fileID: 0}
+--- !u!114 &-4686051854149982470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4157381422819357110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1b0b1d170c8704b90419ddafba611a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  syncSpriteRenderer: {fileID: 4157381422819357107}
+  player: {fileID: 4157381422819357106}
 --- !u!212 &4157381422819357107
 SpriteRenderer:
   m_ObjectHideFlags: 0
