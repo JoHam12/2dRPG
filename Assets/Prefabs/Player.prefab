@@ -2484,9 +2484,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   syncSpriteRenderer: {fileID: 4157381422819357107}
   player: {fileID: 4157381422819357106}
+  isFlipped: 0
 --- !u!212 &4157381422819357107
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2574,7 +2575,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 4157381422819357110}
   m_BodyType: 0
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -2652,7 +2653,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   clientAuthority: 1
-  sendInterval: 0.05
+  sendInterval: 0.01
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -2679,7 +2680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0.01
   clientAuthority: 1
   animator: {fileID: 1476693817}
 --- !u!1 &5734885127014971123

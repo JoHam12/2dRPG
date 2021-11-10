@@ -160,13 +160,12 @@ public class Player : NetworkBehaviour
             float vertical = Input.GetAxisRaw("Vertical");
 
             Vector3 direction = new Vector2(horizontal, vertical);
-            direction = direction.normalized * speed.GetSpeedValue() * Time.deltaTime;
+            direction = direction.normalized * speed.GetSpeedValue() * Time.fixedDeltaTime;
             isRunning = direction.magnitude != 0;
-            transform.position += new Vector3(direction.x, direction.y, direction.z);
+            transform.position += direction;
             if (direction.normalized.x > 0){ leftOrientation = 1; }
             else if (direction.normalized.x < 0){ leftOrientation = -1; }
             upOrientation = (int) direction.normalized.y;
-            // Here
             
         }
         public bool GetIsRunning(){ return isRunning; }
@@ -423,10 +422,10 @@ public class Player : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if(!isLocalPlayer){ return ; }
         Debug.Log(other.gameObject.name + " : " + gameObject.name + " : " + Time.time);
-        if(other.CompareTag("Ammo")){
-            Ammo ammo = other.GetComponent<Ammo>();
-            health.HealthManager(ammo.GetDamage());
-        }
+        if(!other.CompareTag("Ammo")){ return ; }
+    
+        Ammo ammo = other.GetComponent<Ammo>();
+        health.HealthManager(ammo.GetDamage());
         Destroy(other.gameObject);
     }
     /* 
