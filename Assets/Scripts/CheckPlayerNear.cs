@@ -5,8 +5,8 @@ public class CheckPlayerNear : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.CompareTag("Player")){
             Debug.Log("Player seen");
-            ennemy.SetHasTarget(true);
             ennemy.SetTarget(other.transform);
+            ennemy.SetHasTarget(true);
         }
     }
 
