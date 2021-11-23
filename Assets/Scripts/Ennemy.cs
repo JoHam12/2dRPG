@@ -63,6 +63,7 @@ public class Ennemy : NetworkBehaviour
         private Transform waypointTarget;
         private int destPoint;
         private float speed;
+        private float rayLength = 2f; 
         private float rotationAngleVar = 5f;
         private float currentRotationAngleUp;
         private float currentRotationAngleDown;
@@ -72,6 +73,7 @@ public class Ennemy : NetworkBehaviour
         private bool init; 
         RaycastHit2D hitUp;
         RaycastHit2D hitDown;
+        
         public Movement(Transform[] waypoints, float speed, Transform transform){
             this.waypoints = waypoints;
             this.speed = speed;
@@ -83,29 +85,29 @@ public class Ennemy : NetworkBehaviour
             rayDirectionUp = RotatedVector(direction, currentRotationAngleUp);
             rayDirectionDown = RotatedVector(direction, currentRotationAngleDown);
 
-            hitUp = Physics2D.Raycast(transform.position, direction.normalized, 1);
-            hitDown = Physics2D.Raycast(transform.position, direction.normalized, 1);
+            hitUp = Physics2D.Raycast(transform.position, direction.normalized, rayLength);
+            hitDown = Physics2D.Raycast(transform.position, direction.normalized, rayLength);
 
             init = true;
         }
         public void Move(Transform transform){
             direction = waypointTarget.position - transform.position;
 
-            hitUp = Physics2D.Raycast(transform.position, rayDirectionUp, 1.5f);
-            hitDown = Physics2D.Raycast(transform.position, rayDirectionDown, 1.5f);
+            hitUp = Physics2D.Raycast(transform.position, rayDirectionUp, rayLength);
+            hitDown = Physics2D.Raycast(transform.position, rayDirectionDown, rayLength);
             rayDirectionUp = RotatedVector(rayDirectionUp, rotationAngleVar);
 
             rayDirectionDown = RotatedVector(rayDirectionDown, -rotationAngleVar);
             if(init){
-                hitUp = Physics2D.Raycast(transform.position, direction.normalized, 1.5f);
-                hitDown = Physics2D.Raycast(transform.position, direction.normalized, 1.5f);
+                hitUp = Physics2D.Raycast(transform.position, direction.normalized, rayLength);
+                hitDown = Physics2D.Raycast(transform.position, direction.normalized, rayLength);
                 rayDirectionDown = direction.normalized;
                 rayDirectionUp = direction.normalized;
             }
 
-            Debug.DrawRay(transform.position, rayDirectionDown.normalized*1.5f, Color.green, 0f);
+            Debug.DrawRay(transform.position, rayDirectionDown.normalized*rayLength, Color.green, 0f);
 
-            Debug.DrawRay(transform.position, rayDirectionUp.normalized*1.5f, Color.red, 0f);
+            Debug.DrawRay(transform.position, rayDirectionUp.normalized*rayLength, Color.red, 0f);
 
             if(hitUp.collider != null && hitDown.collider != null){
                 init = false;

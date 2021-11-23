@@ -15,8 +15,10 @@ public class SyncSpriteRenderer : NetworkBehaviour
     void Update(){
         if(syncSpriteRenderer != null){ syncSpriteRenderer.flipX = isFlipped; }
         if(!isLocalPlayer){ return ; }
+
+        // Needs correction
         if(Input.GetKeyDown(KeyCode.A)){
-                SetFlipState(false);
+            SetFlipState(false);
         }
         if(Input.GetKeyDown(KeyCode.D)){
             SetFlipState(true);

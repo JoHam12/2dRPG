@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Ammo : MonoBehaviour
+public class Ammo : NetworkBehaviour
 {
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private float ammoSpeed = 10f;

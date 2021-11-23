@@ -18,8 +18,8 @@ public class Player : NetworkBehaviour
     */
     [System.Serializable]
     public class Health{
-        private int maxHealth;        
-        private int healthValue;
+        [SyncVar] private int maxHealth;        
+        [SyncVar] private int healthValue;
 
         /* 
             /Constructor\
@@ -41,6 +41,7 @@ public class Player : NetworkBehaviour
                        |      | < 0 : Attack; > 0 : Heal
             playerobj  | GO   | player's gameObject
         */
+        [Command]
         public void HealthManager(int damage){
             if(healthValue + damage >= maxHealth){
                 healthValue += damage;
@@ -58,6 +59,7 @@ public class Player : NetworkBehaviour
         public int GetMaxHealth(){ return maxHealth; }
         // Get Health
         public int GetHealthValue(){ return healthValue; }
+        public void SetHealthValue(int health){ healthValue = health; }
     }
 
     /* 
@@ -436,7 +438,6 @@ public class Player : NetworkBehaviour
         if(!item.CompareTag("Item")){ return ;}
         currentItemGameObj = Instantiate(item, itemsLeftParent.transform.position, itemsLeftParent.rotation, itemsLeftParent);
         currentEquippedItem = currentItemGameObj.GetComponent<Item>();
-        currentEquippedItem.SetIsOn(true);
 
     }
     // private static void Die(GameObject player){
