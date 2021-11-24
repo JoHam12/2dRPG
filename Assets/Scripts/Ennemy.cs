@@ -74,6 +74,10 @@ public class Ennemy : NetworkBehaviour
         RaycastHit2D hitUp;
         RaycastHit2D hitDown;
         
+        /// <summary> Movement constructor for Ennemy </summary>
+        /// <param name="waypoints"> Point transforms for ennemy </param>
+        /// <param name="speed"> Speed Value </param>
+        /// <param name="transform"> Ennemy transform </param>
         public Movement(Transform[] waypoints, float speed, Transform transform){
             this.waypoints = waypoints;
             this.speed = speed;
@@ -90,6 +94,9 @@ public class Ennemy : NetworkBehaviour
 
             init = true;
         }
+
+        /// <summary> Move ennemy according to ennemy movement rules </summary>
+        /// <param name="transform"> Ennemy transform </param>
         public void Move(Transform transform){
             direction = waypointTarget.position - transform.position;
 
@@ -128,6 +135,10 @@ public class Ennemy : NetworkBehaviour
         public Transform GetWaypointTarget(){ return waypointTarget; }
         public int GetDestPoint(){ return destPoint; }
         public float GetSpeed(){ return speed; }
+
+        /// <summary> Ennemy pathfinder towards player </summary>
+        /// <param name="target"> Player target transform </param>
+        /// <param name="transform"> Ennemy transform </param>
         public void PathFinder(Transform target, Transform transform){
             Vector3 direction = target.position - transform.position;
             spriteRenderer.flipX = direction.x > 0;
@@ -148,8 +159,12 @@ public class Ennemy : NetworkBehaviour
     [SerializeField] private Transform[] ennemyWaypoints;
     static private Rigidbody2D rb;
     static private SpriteRenderer spriteRenderer;
+
+    /* Getter functions */
     public Health GetHealth(){ return health; }
     public Movement GetMovement(){ return movement; }
+
+    /* Setter functions  */
     public void SetHasTarget(bool state){ hasTarget = state; }
     public void SetTarget(Transform target){ 
         if(hasTarget){ return ; }
@@ -173,6 +188,12 @@ public class Ennemy : NetworkBehaviour
         
     }
 
+    /// <summary> Rotate 2D vector by angle </summary>
+    ///
+    /// <param name="vect"> Initial 2D vector </param>
+    /// <param name="angle"> Angle to rotate vector by </param>
+    ///
+    /// <returns> new Rotated vector by angle </returns>
     static private Vector2 RotatedVector(Vector2 vect, float angle){
         return new Vector2(vect.x * Mathf.Cos(angle * Mathf.Deg2Rad)-vect.y * Mathf.Sin(angle * Mathf.Deg2Rad), 
         vect.y * Mathf.Cos(angle * Mathf.Deg2Rad)+vect.x * Mathf.Sin(angle * Mathf.Sin(angle * Mathf.Deg2Rad)));

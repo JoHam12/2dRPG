@@ -26,7 +26,8 @@ public class SyncSpriteRenderer : NetworkBehaviour
         syncSpriteRenderer.flipX = isFlipped;
     }
     
-    [Command] void SetFlipState(bool newState){
+    /// <summary> Set Flip state across network </summary>
+    [Command] private void SetFlipState(bool newState){
         isFlipped = newState;
     }
 

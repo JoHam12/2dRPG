@@ -16,6 +16,7 @@ public class Player : NetworkBehaviour
         maxHealth    |  int  | maximumHealth
         healthValue  |  int  | current health value
     */
+    /// <summary> Health class </summary>
     [System.Serializable]
     public class Health{
         [SyncVar] private int maxHealth;        
@@ -29,6 +30,8 @@ public class Player : NetworkBehaviour
 
             Make instance of Health with maxHealth
         */
+        /// <summary> Health constructor </summary>
+        /// <param name="_maxHealth"> Maximum player health </param>
         public Health(int _maxHealth){
             maxHealth = _maxHealth;
             healthValue = maxHealth;
@@ -41,8 +44,10 @@ public class Player : NetworkBehaviour
                        |      | < 0 : Attack; > 0 : Heal
             playerobj  | GO   | player's gameObject
         */
-        [Command]
-        public void HealthManager(int damage){
+
+        /// <summary> Manage player health </summary>
+        /// <param name="damage"> damage received by player < 0:Attack > 0 : Heal </param>
+        [Command] public void HealthManager(int damage){
             if(healthValue + damage >= maxHealth){
                 healthValue += damage;
                 // Heal
@@ -55,10 +60,10 @@ public class Player : NetworkBehaviour
             }
             healthValue += damage;
         }
-        // Get Maximum Health
+        /* Getter function */
         public int GetMaxHealth(){ return maxHealth; }
-        // Get Health
         public int GetHealthValue(){ return healthValue; }
+        /* Setter functions */
         public void SetHealthValue(int health){ healthValue = health; }
     }
 
@@ -69,6 +74,7 @@ public class Player : NetworkBehaviour
         -------------+-------+--------------
         damageValue  | int   | player attack value
     */ 
+    ///<summary> Strength class </summary>
     public class Strength{
         private int damageValue;
         /* 
@@ -79,10 +85,12 @@ public class Player : NetworkBehaviour
 
             Make instance of Strength with damage
         */
+        /// <summary> Strength constructor </summary>
+        /// <param name="damage"> player damage </param> 
         public Strength(int _damage){
             damageValue = _damage;
         }
-        // Get Damage Value
+        /* Getter functions */
         public int GetDamageValue(){ return damageValue; }
     }
 
@@ -94,17 +102,20 @@ public class Player : NetworkBehaviour
         walkingSpeed | float | walking speed
         speedValue   | float | current speed value
     */
+    /// <summary> Speed class </summary>
     [System.Serializable]
     public class Speed{
         private float runningSpeed;
         private float speedValue;
-        /* 
-            /Constructor\
-        */
+        
+        /// <summary> Speed constructor </summary>
+        /// <param name="_runningSpeed"> player speed </param>
         public Speed(float _runningSpeed){
             runningSpeed = _runningSpeed;
         }
+        /* Getter functions */
         public float GetSpeedValue(){ return speedValue; }
+        /* Setter functions */
         public void SetSpeedValue(bool isRunning){ 
             speedValue = runningSpeed; 
         }
@@ -120,6 +131,7 @@ public class Player : NetworkBehaviour
         exp       |  int  | current player experience
         maxExp    |  int  | maximum experience for level $level         
     */
+    /// <summary> Level info </summary>
     public class LevelInfo{
         private int level;
         private int exp;
@@ -138,6 +150,7 @@ public class Player : NetworkBehaviour
         leftOrientation | int   | value for player horizontal orientation
         upOrientation   | int   | value for player vertical orientation
     */
+    /// <summary> Player movement class </summary>
     public class Movement{
         public bool isRunning;
         /*
@@ -149,6 +162,7 @@ public class Player : NetworkBehaviour
             upOrientation==0=>Middle
         */
         private int leftOrientation, upOrientation;
+        /// <summary> Movement constructor </summary>
         public Movement(){
             isRunning = false;
             leftOrientation = 0;
@@ -157,6 +171,9 @@ public class Player : NetworkBehaviour
         /* 
             Moves transform at speed, assigns orientation and flips player 
         */
+        /// <summary> Move player transform at speed </summary>
+        /// <param name="speed"> player speed </param>
+        /// <param name="transform"> player transform </param>
         public void Move(Speed speed, Transform transform){
             float horizontal = Input.GetAxisRaw("Horizontal");
             float vertical = Input.GetAxisRaw("Vertical");
@@ -170,6 +187,7 @@ public class Player : NetworkBehaviour
             upOrientation = (int) direction.normalized.y;
             
         }
+        /* Getter functions */
         public bool GetIsRunning(){ return isRunning; }
         public int GetLeftOrientation(){ return leftOrientation; }
         public int GetUpOrientation(){ return upOrientation; }
@@ -184,12 +202,14 @@ public class Player : NetworkBehaviour
         inventoryPanel | GO      | inventory gameobject
         activationKey  | KeyCode | key that de/activates inventory
     */
+    /// <summary> playerUI class </summary>
     public class PlayerUI{
-        [SerializeField] private Slider healthSlider;
-        private Color sliderColor;
+        [SyncVar] [SerializeField] private Slider healthSlider;
+        [SyncVar] private Color sliderColor;
         [SerializeField] private GameObject inventoryPanel;
         private KeyCode activationKey;
         private bool invActivated;
+        [SerializeField] private PlaceHolder[] placeHolders;
         /* 
             /Constructor\
             Variables    | Type   | Description
@@ -197,20 +217,29 @@ public class Player : NetworkBehaviour
             healthSlider | Slider | the slider to show in UI
             invActivated | bool   | checks if inventory is activated
         */
-        public PlayerUI(Health health, Slider healthSlider, GameObject inventoryPanel){
+        /// <summary> PlayerUI constructor </summary>
+        /// <param name="health"> player health </param>
+        /// <param name="healthSlider"> health slider UI </param>
+        /// <param name="inventoryPanel"> inventory gameobject </param>
+        /// <param name="player"> current player instance </param>
+        public PlayerUI(Health health, Slider healthSlider, GameObject inventoryPanel, Player player){
             // Health UI
             sliderColor = new Color(0f, 255f, 0f);
             this.healthSlider = healthSlider;
             healthSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color = sliderColor;
             healthSlider.maxValue = health.GetMaxHealth();
             healthSlider.value = health.GetMaxHealth();
-
             // Inventory UI
             activationKey = KeyCode.I;
             this.inventoryPanel = inventoryPanel;
             invActivated = false;
             this.inventoryPanel.SetActive(false);
+            placeHolders = new PlaceHolder[24];
+            placeHolders = inventoryPanel.GetComponentsInChildren<PlaceHolder>();
+            foreach(PlaceHolder ph in placeHolders){ ph.SetPlayer(player); }
         }
+
+        /// <summary> Sets health slider value </summary> 
         public void SetHealthSlider(Health health){
             healthSlider.maxValue = health.GetMaxHealth();
             healthSlider.value = health.GetHealthValue();
@@ -226,109 +255,90 @@ public class Player : NetworkBehaviour
             healthSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color = sliderColor;
         }
 
+        /* Getter functions */
         public KeyCode GetInventoryActivationKey(){ return activationKey; }
         public bool GetInvActivated(){ return invActivated; }
+        /// <summary> Adds item to inventory UI </summary>
+        /// <param name="item"> item to add to inventory </param>
+        /// <param name="player"> current player instance </param>
+        public void AddItemToInventUI(Item item, Player player){
+            foreach(PlaceHolder ph in placeHolders){
+                if(ph.isEmpty){
+                    GameObject itemInstance = Instantiate(item.GetItemPicture(), ph.transform);
+                    item.SetUser(player);
+                    ph.SetPlayer(player);
+                    ph.SetButton(itemInstance.GetComponentInChildren<Button>());
+                    // To Change
+                    if(item.TryGetComponent<Heal>(out Heal heal)){
+                        ph.button.onClick.AddListener(heal.HealManager);
+                        heal.SetObjectHolder(ph);
+                    }
+                    
+                    ph.isEmpty = false;
+                    return ; 
+                }
+            }
+            
+        }
+        /// <summary> Show Inventory </summary>
         public void ActivateInventory(){ 
             inventoryPanel.SetActive(true);
             invActivated = true;
         }
+
+        /// <summary> Hide Inventory </summary>
         public void DeActivateInventory(){ 
             invActivated = false;
             inventoryPanel.SetActive(false); 
         }
     }
 
-    /* 
-        /Resource class\
-        Variable         | Type       | Description
-        -----------------+------------+--------------
-        gameObjectPrefab | GameObject | GameObject's prefab
-        num              | int        | number of instances of the resource
-        resId            | int        | Id of the resource (Id must be different for all resources) 
-    */
-    public class Resource{
-        private GameObject gameObjectPrefab;
-        private int num;
-        private int resId;
-        public Resource(GameObject gameObject, int num, int resId){
-            this.gameObjectPrefab = gameObject;
-            this.resId = resId;
-            this.num = num;
-        }
-        public GameObject GetGameObjectPrefab(){ return gameObjectPrefab; }
-        public int GetNum(){ return num; }
-        public void AddNum(int n){ num += n; }
-        public int GetResId(){ return resId; }
-        public bool Equ(Resource otherResource){
-            return resId == otherResource.GetResId();
-        }
-    }
-    /*  /Inventory Class\ 
-        Variable          | Type           | Description
-        ------------------+----------------+--------------
-        resourcesList     | List<Resource> | List of resources in inventory
-        numOfResources    | int            | number of resources 
-        numOfAllResources | int            | sum of number of all resources
-    */
+    /// <summary> Inventory class </summary>
+    [System.Serializable]
     public class Inventory{
-        private List<Resource> resourcesList;
-        private int numOfResources;
-        private int numOfAllResources;
-        public Inventory(){
-            resourcesList = new List<Resource>();
-            numOfResources = 0;
-            numOfAllResources = 0;
+        public List<Item> itemsList;
+        public int maxNumItems;
+        
+        /// <summary> Inventory constructor </summary>
+        /// <param name="maxNumItems"> Max Number of items in inventory </param>
+        public Inventory(int maxNumItems){
+            itemsList = new List<Item>();
+            this.maxNumItems = maxNumItems;
         }
-        public Inventory(Resource[] resources, int num){
-            resourcesList = new List<Resource>();
-            numOfResources = num;
-            numOfAllResources = 0;
-            for(int i = 0; i < num; i++){
-                resourcesList.Add(resources[i]);
-                numOfAllResources += resources[i].GetNum();
-            }
-        }
-        public int Contains(Resource resource){
-            for(int i = 0; i < numOfResources; i++){
-                if(resourcesList[i].Equ(resource) && resourcesList[i].GetNum() > 0){
-                    return i;
-                }
-            }
-            return -1;
-        }
-        public void Add(Resource resource){
-            int ind = this.Contains(resource);
-            if (ind!=-1){
-                resourcesList[ind].AddNum(resource.GetNum());
-                numOfResources += 1;
-                numOfAllResources += resource.GetNum();
+
+        /// <summary> Adds item to player's inventory </summary>
+        /// <param name="player"> current player instance </param>
+        public void Add(Item item, Player player){
+            if(itemsList.Count >= maxNumItems){
+                Debug.LogWarning("Cant add full inventory");
                 return ;
             }
-            resourcesList.Add(resource);
-            numOfResources += 1;
-            numOfAllResources += resource.GetNum();
+            itemsList.Add(item);
+            item.SetUser(player);
         }
-        public void Remove(Resource resource){
-            for(int i = 0; i < numOfResources; i++){
-                if(resourcesList[i].Equ(resource)){
-                    if(resourcesList[i].GetNum() - resource.GetNum() > 0){
-                        resourcesList[i].AddNum(-resource.GetNum());
-                        numOfResources -= 1; 
-                        numOfAllResources -= resource.GetNum();
-                        return ;
-                    }
-                    resourcesList.Remove(resource);          
-                    numOfResources -= 1; 
-                    numOfAllResources -= resource.GetNum();
+
+        /// <summary> Remove item from player's inventory </summary>
+        /// <param name="item"> item to remove </param>
+        public void Remove(Item item){
+            foreach(Item i in itemsList){
+                if(i == item){
+                    itemsList.Remove(item);
                     return ;
                 }
             }
         }
-
-        public List<Resource> GetResourcesList(){ return resourcesList; }
-        public int GetNumOfResources(){ return numOfResources; }
-
+        
+        /// <summary> Checks if player has item in inventory </summary>
+        /// <param name="item"> item to look for </param>
+        public bool Contains(Item item){
+            foreach(Item i in itemsList){
+                if(i == item){ return true; }
+            }
+            
+            return false;
+        }
     }
+
     /* 
         Player's attributes
     */
@@ -342,15 +352,17 @@ public class Player : NetworkBehaviour
     private Movement movement;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private GameObject invPanel;
-    private PlayerUI playerUI;
+    [SerializeField] private PlayerUI playerUI;
     private string cat = "Archer";
     [SerializeField] private GameObject itemPrefab; 
     [SerializeField] private Transform itemsLeftParent, itemsRightParent;
     [SerializeField] private Item currentEquippedItem;
     [SerializeField] private GameObject currentItemGameObj;
     [SerializeField] private Transform cam;
-
-    /* Getters */
+    [SerializeField] private Inventory inventory;
+    [SerializeField] private Item pickableItem;
+    private bool canPickItem;
+    /* Getter functions */
     public Category GetCategory(){ return category; }
     public Health GetHealth(){ return health; }
     public Strength GetStrength(){ return strength; }
@@ -381,7 +393,10 @@ public class Player : NetworkBehaviour
         movement = new Movement();
         speed.SetSpeedValue(movement.isRunning);
 
-        playerUI = new PlayerUI(health, healthSlider, invPanel);
+        inventory = new Inventory(24);
+        canPickItem = false;
+
+        playerUI = new PlayerUI(health, healthSlider, invPanel, this);
         
     }
     void FixedUpdate(){     
@@ -402,8 +417,15 @@ public class Player : NetworkBehaviour
     private void Update() {
         if(!isLocalPlayer){ return ; }
         
-        if(Input.GetKeyDown(KeyCode.E)){
-            EquipItem(itemPrefab);
+        if(canPickItem && Input.GetKeyDown(KeyCode.E)){
+            inventory.Add(pickableItem, this);
+            playerUI.AddItemToInventUI(pickableItem, this);
+            pickableItem.gameObject.SetActive(false);
+        }
+
+        if(Input.GetKeyDown(KeyCode.H)){
+            health.HealthManager(-200);
+            Debug.Log(health.GetHealthValue());
         }
         if(Input.GetKeyDown(playerUI.GetInventoryActivationKey())){
             if(!playerUI.GetInvActivated()){ playerUI.ActivateInventory(); }
@@ -423,6 +445,12 @@ public class Player : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) {
         if(!isLocalPlayer){ return ; }
+        if(other.CompareTag("Item")){
+            
+            pickableItem = other.GetComponent<Item>();
+            canPickItem = true;
+        
+        }
         Debug.Log(other.gameObject.name + " : " + gameObject.name + " : " + Time.time);
         if(!other.CompareTag("Ammo")){ return ; }
     
@@ -430,16 +458,25 @@ public class Player : NetworkBehaviour
         health.HealthManager(ammo.GetDamage());
         Destroy(other.gameObject);
     }
-    /* 
-        Function to equip an item to player
-        (takes item's prefab)
-    */
-    private void EquipItem(GameObject item){
-        if(!item.CompareTag("Item")){ return ;}
-        currentItemGameObj = Instantiate(item, itemsLeftParent.transform.position, itemsLeftParent.rotation, itemsLeftParent);
-        currentEquippedItem = currentItemGameObj.GetComponent<Item>();
-
+    private void OnTriggerExit2D(Collider2D other) {
+        if(!isLocalPlayer){ return ; }
+        if(other.CompareTag("Item")){
+            pickableItem = null;
+            canPickItem = false;
+        }
     }
+    // /* 
+    //     Function to equip an item to player
+    //     (takes item's prefab)
+    // */
+
+    // /// <summary> Equip  </summary>
+    // private void EquipItem(GameObject item){
+    //     if(!item.CompareTag("Item")){ return ;}
+    //     currentItemGameObj = Instantiate(item, itemsLeftParent.transform.position, itemsLeftParent.rotation, itemsLeftParent);
+    //     currentEquippedItem = currentItemGameObj.GetComponent<Item>();
+
+    // }
     // private static void Die(GameObject player){
     //     gameController.SwitchToDungeonCamera();
     //     // Death Animation
